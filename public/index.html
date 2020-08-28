@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        #messages-container {
+            height: calc(100vh - 100px);
+            overflow: scroll;
+        }
+    </style>
+</head>
+<body>
+<div id="messages-container">
+    <ul id="messages"></ul>
+</div>
+    <form>
+      <select id="type">
+        <option value="message">message</option>
+        <option value="transcoder">transcoder</option>
+    </select>
+      <input id="msg" autocomplete="off" /><button>Send</button>
+    </form>
+  <script>
+      var collapsedMsgCount = 0;
+      function appendMsg(data, color) {
+        const ul = document.querySelector('ul');
+        try {
+            if (data.startsWith('frame=') && ul.lastChild.innerText.startsWith('frame=')) {
+                collapsedMsgCount++;
+                ul.lastChild.innerText = `${data.trim()} [${collapsedMsgCount}]`;
+                return;
+            }
+        } catch(e) {
+            console.error(e);
+        }
+        collapsedMsgCount = 0;
+        const el = document.createElement('li')
+        el.innerText = data;
+        if (color) el.style.backgroundColor = color;
+        ul.appendChild(el);
+      }
+
+      const socketio = io();
+      document.querySelector('form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = document.querySelector('#type');
+        const input = document.querySelector('#msg');
+        socketio.emit(type.value, input.value);
+        input.value = '';
+        return false;
+      });
+      socketio.on('message', (data) => appendMsg(data, 'lightyellow'));
+      socketio.on('stdout', (data) => appendMsg(data, 'lightgreen'))
+      socketio.on('stderr', (data) => appendMsg(data, 'lightcyan'))
+      socketio.on('err', (data) => appendMsg(data, 'red'));
+    </script>
+</body>
+</html>
