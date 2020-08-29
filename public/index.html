@@ -15,11 +15,18 @@
     <ul id="messages"></ul>
 </div>
     <form>
+<!--
       <select id="type">
         <option value="message">message</option>
         <option value="transcoder">transcoder</option>
-    </select>
-      <input id="msg" autocomplete="off" /><button>Send</button>
+      </select>
+      <input id="msg" autocomplete="off" /><input type="submit" value="Send" />
+-->
+      <select id="service">
+          <option value="">---</option>
+      </select>
+      <input id="btn-start" type="button" value="Start" />
+      <input id="btn-stop" type="button" value="Stop" />
     </form>
   <script>
       var collapsedMsgCount = 0;
@@ -46,6 +53,7 @@
         e.preventDefault();
         const type = document.querySelector('#type');
         const input = document.querySelector('#msg');
+        if (!input || input.length == 0) return false;
         socketio.emit(type.value, input.value);
         input.value = '';
         return false;
@@ -54,6 +62,23 @@
       socketio.on('stdout', (data) => appendMsg(data, 'lightgreen'))
       socketio.on('stderr', (data) => appendMsg(data, 'lightcyan'))
       socketio.on('err', (data) => appendMsg(data, 'red'));
+      socketio.on('service', (data) => {
+        const service = document.querySelector('#service');
+        data.forEach(([sid, { name }]) => {
+            const el = document.createElement('option');
+            el.innerText = name;
+            el.value = sid;
+            service.appendChild(el);
+        })
+      });
+      document.querySelector('#btn-start').addEventListener('click', () => {
+        const serviceId = document.querySelector('#service').value;
+        if (!serviceId) return false;
+        socketio.emit('transcoder', `start ${serviceId}`);
+      });
+      document.querySelector('#btn-stop').addEventListener('click', () => {
+        socketio.emit('transcoder', 'stop');
+      });
     </script>
 </body>
 </html>

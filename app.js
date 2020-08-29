@@ -4,6 +4,7 @@ const http = require('http');
 const socketio = require('socket.io');
 const config = require('./config');
 const transcoder = require('./transcoder');
+const channels = require('./channels');
 
 const app = express();
 const server = http.createServer(app);
@@ -29,6 +30,8 @@ io.on('connection', (socket) => {
       default:
     }
   });
+  socket.emit('message', `Transcoder status: ${transcoder.getStatus()}`);
+  socket.emit('service', channels.list());
 });
 
 const forwardedEventTypes = ['stdout', 'stderr', 'err', 'message'];
