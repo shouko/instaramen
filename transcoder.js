@@ -13,7 +13,7 @@ const buildSourceUrl = (fullServiceId) => {
   const { type, channel } = getServiceMeta(fullServiceId);
   return `${config.upstreamUrl}/api/channels/${type}/${channel}/services/${fullServiceId}/stream?decode=1`;
 };
-const buildInputParams = (fullServiceId) => `-i ${buildSourceUrl(fullServiceId)} -map 0:0 -map 0:1`.split(' ');
+const buildInputParams = (fullServiceId) => `-i ${buildSourceUrl(fullServiceId)} -map 0:v:0 -map 0:a:0`.split(' ');
 const buildStreamKey = (fullServiceId) => `${parseInt(fullServiceId, 10).toString(36)}-${Math.random().toString(36).substr(2)}`;
 const getViewingUrl = () => (streamKey ? `${config.viewingUrl}/${streamKey}/index.m3u8` : '');
 

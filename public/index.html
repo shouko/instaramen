@@ -30,10 +30,16 @@
     </form>
   <script>
       var collapsedMsgCount = 0;
-      function appendMsg(data, color) {
+      function shouldCollapse(data) {
+        return data.split('\n').some(ln => ln.startsWith('frame='));
+      }
+      function appendMsg(input, color) {
+        console.log(input);
+        const data = input.split('\n').map(ln => ln.trim()).filter(ln => ln && !ln.startsWith('Last message repeated') && !/\[[\w_]+ @ \w+\]/.test(ln)).join('\n');
+        if (data.length == 0) return false;
         const ul = document.querySelector('ul');
         try {
-            if (data.startsWith('frame=') && ul.lastChild.innerText.startsWith('frame=')) {
+            if (shouldCollapse(data) && shouldCollapse(ul.lastChild.innerText)) {
                 collapsedMsgCount++;
                 ul.lastChild.innerText = `${data.trim()} [${collapsedMsgCount}]`;
                 return;

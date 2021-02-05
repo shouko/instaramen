@@ -38,7 +38,9 @@ const forwardedEventTypes = ['stdout', 'stderr', 'err', 'message'];
 
 forwardedEventTypes.forEach((type) => {
   transcoder.on(type, (data) => {
-    io.emit(type, typeof data === 'string' ? data.replace(config.upstreamUrl, '###').replace(config.downstreamUrl, '###') : '');
+    if (typeof data !== 'string') return false;
+    if (data.indexOf('A decode call did not consume any data') !== -1) return false;
+    io.emit(type, data.replace(config.upstreamUrl, '###').replace(config.downstreamUrl, '###'));
   });
 });
 
