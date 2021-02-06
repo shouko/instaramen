@@ -3,15 +3,14 @@ const config = require('./config');
 
 const map = new Map();
 
-const load = () => fetch(`${config.upstreamUrl}/api/channels`)
+const load = () => fetch(`${config.upstreamUrl}/api/services`)
   .then((res) => res.json()).then((body) => {
     if (!Array.isArray(body)) throw new Error();
     body.forEach(({
-      type, channel, name, services,
+      id, networkId, name, type, channel
     }) => {
-      if (!Array.isArray(services) || services.length === 0) return false;
-      if (config.allowedNetworks.indexOf(services[0].networkId) === -1) return false;
-      return map.set(services[0].id, { type, channel, name });
+      if (type !== 1 || config.allowedNetworks.indexOf(networkId) === -1) return false;
+      return map.set(id, { type: channel.type, channel: channel.channel, name });
     });
     console.log('Services loaded', [...map]);
   }).catch((e) => {
