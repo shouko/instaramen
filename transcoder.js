@@ -24,15 +24,18 @@ const start = (fullServiceId) => {
     next = null;
     if (instance) throw new Error('Instance exists');
     streamKey = buildStreamKey(fullServiceId);
+    const streamKeyPath = config.downstreamUseStreamKey ? `/${streamKey}` : '';
+    const fullDownstreamUrl = `${config.downstreamUrl}${streamKeyPath}`;
     emitter.emit('message', `Spawning FFmpeg instance for ${fullServiceId}`);
-    instance = spawn('ffmpeg', [
+    const args = [
       '-hide_banner',
       ...decodeParams,
       ...buildInputParams(fullServiceId),
       ...filterParams,
       ...encodeParams,
-      `${config.downstreamUrl}/${streamKey}`,
-    ].filter((x) => x));
+      fullDownstreamUrl,
+    ].filter((x) => x);
+    instance = spawn(config.ffmpeg.path, args);
 
     instance.on('exit', (code) => {
       emitter.emit('message', `FFmpeg exited with code ${code}`);
