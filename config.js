@@ -3,6 +3,7 @@ require('dotenv').config();
 module.exports = {
   port: process.env.PORT,
   upstreamUrl: process.env.UPSTREAM_URL,
+  scheduleApiUrl: process.env.SCHEDULE_API_URL,
   downstreamUrl: process.env.DOWNSTREAM_URL,
   downstreamUseStreamKey: parseInt(process.env.DOWNSTREAM_USE_STREAM_KEY, 10),
   viewingUrl: process.env.VIEWING_URL,
