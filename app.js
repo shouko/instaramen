@@ -40,7 +40,7 @@ forwardedEventTypes.forEach((type) => {
   transcoder.on(type, (data) => {
     if (typeof data !== 'string') return false;
     if (data.indexOf('A decode call did not consume any data') !== -1) return false;
-    io.emit(type, data.replace(config.upstreamUrl, '###').replace(config.downstreamUrl, '###'));
+    return io.emit(type, data.replace(config.upstreamUrl, '###').replace(config.downstreamUrl, '###'));
   });
 });
 

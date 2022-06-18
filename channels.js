@@ -7,7 +7,7 @@ const load = () => fetch(`${config.upstreamUrl}/api/services`)
   .then((res) => res.json()).then((body) => {
     if (!Array.isArray(body)) throw new Error();
     body.forEach(({
-      id, networkId, name, type, channel
+      id, networkId, name, type, channel,
     }) => {
       if (type !== 1 || config.allowedNetworks.indexOf(networkId) === -1) return false;
       return map.set(id, { type: channel.type, channel: channel.channel, name });

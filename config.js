@@ -4,7 +4,7 @@ module.exports = {
   port: process.env.PORT,
   upstreamUrl: process.env.UPSTREAM_URL,
   downstreamUrl: process.env.DOWNSTREAM_URL,
-  downstreamUseStreamKey: Number.parseInt(process.env.DOWNSTREAM_USE_STREAM_KEY),
+  downstreamUseStreamKey: parseInt(process.env.DOWNSTREAM_USE_STREAM_KEY, 10),
   viewingUrl: process.env.VIEWING_URL,
   allowedNetworks: process.env.ALLOWED_NETWORKS.split(',').map((e) => parseInt(e, 10)),
   ffmpeg: {
