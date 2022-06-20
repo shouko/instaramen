@@ -97,8 +97,8 @@
 
     (async () => {
       const channels = await fetch('/api/channels').then(r => r.json());
-      const programs = await fetch('/api/programs').then(r => r.json())
-      const scheduledEvents = await fetch('/api/scheduled_events').then(r => r.json());
+      const programs = await fetch('/api/programs?days=7').then(r => r.json())
+      const scheduledEvents = await fetch('/api/scheduled_events?days=7').then(r => r.json());
       programs.sort((a, b) => (a.startsAt - b.startsAt) || (a.endsAt - b.endsAt)).forEach((row) => {
         const groupKey = row.serviceId;
         if (!programsGroupedByServiceId.has(groupKey)) programsGroupedByServiceId.set(groupKey, []);

@@ -60,7 +60,8 @@ app.get('/', (req, res) => res.send('Hello World!'));
 app.get('/api/channels', (req, res) => res.json(channels.list()));
 
 app.get('/api/programs', (req, res) => {
-  programs.getFromToday().then((rows) => res.json(rows));
+  const { days } = req.query;
+  programs.getFromToday(days || 2).then((rows) => res.json(rows));
 });
 
 app.post('/api/programs/sync', async (req, res) => {
@@ -68,7 +69,8 @@ app.post('/api/programs/sync', async (req, res) => {
 });
 
 app.get('/api/scheduled_events', (req, res) => {
-  scheduledEvents.getFromToday().then((rows) => res.json(rows));
+  const { days } = req.query;
+  scheduledEvents.getFromToday(days || 2).then((rows) => res.json(rows));
 });
 
 app.post('/api/scheduled_events', async (req, res) => {
