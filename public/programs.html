@@ -4,7 +4,7 @@
     <title>Hello</title>
     <style>
       .tl {
-        height: 200px;
+        height: 100px;
         position: relative;
         background-color: aliceblue;
         margin: 2px;
@@ -16,7 +16,7 @@
       .block {
         position: absolute;
         top: 0;
-        min-height: 200px;
+        min-height: 100px;
         background-color: rgb(255, 228, 196);
       }
       .block:hover {
@@ -33,22 +33,36 @@
         margin: 2px;
         color: white;
       }
+      .controls-container {
+        position: relative;
+        height: 150px;
+      }
+      .controls {
+        position: fixed;
+        left: 0;
+        z-index: 100;
+      }
+      .controls > div {
+        display: inline-block;
+        background-color: white;
+      }
     </style>
 </head>
 <body>
-  <div>
-    <div>
-      <form id="form">
-        <input id="serviceId" /><span id="serviceIdDisplay"></span><br />
-        <input id="startsAt" /><span id="startsAtDisplay"></span><br />
-        <input id="endsAt" /><span id="endsAtDisplay"></span><br />
-        <input type="reset" />
-        <input type="submit" />
-      </form>
-    </div>
-    </div>
-    <div>
-      <button onclick="fetch('/api/programs/sync', {method:'POST'})">sync</button>
+  <div class="controls-container">
+    <div class="controls">
+      <div>
+        <form id="form">
+          <input id="serviceId" /><span id="serviceIdDisplay"></span><br />
+          <input id="startsAt" /><span id="startsAtDisplay"></span><br />
+          <input id="endsAt" /><span id="endsAtDisplay"></span><br />
+          <input type="reset" />
+          <input type="submit" />
+        </form>
+      </div>
+      <div>
+        <button onclick="fetch('/api/programs/sync', {method:'POST'})">sync</button>
+      </div>
     </div>
   </div>
   <div id="table">
