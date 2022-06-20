@@ -75,6 +75,44 @@ const sync = async () => {
   }
 };
 
+const getFromToday = async (days) => {
+  const now = new Date();
+  const timeZone = 'Asia/Tokyo';
+  const jstYYYY = now.toLocaleString('en-US', {
+    timeZone,
+    year: 'numeric',
+  });
+  const jstMM = now.toLocaleString('en-US', {
+    timeZone,
+    month: '2-digit',
+  });
+  const jstDD = now.toLocaleString('en-US', {
+    timeZone,
+    day: '2-digit',
+  });
+  const todayStartJst = new Date(`${jstYYYY}/${jstMM}/${jstDD} 00:00:00 +09:00`);
+  return Program.findAll({
+    where: {
+      startsAt: {
+        [Op.between]: [
+          todayStartJst.getTime(),
+          todayStartJst.getTime() + 86400 * 1000 * parseInt(days || 2, 10),
+        ],
+      },
+      skipped: false,
+      active: true,
+      [Op.not]: {
+        keywords: '',
+      },
+    },
+    raw: true,
+  }).then((rows) => rows.map((row) => ({
+    ...row,
+    keywords: row.keywords.split(','),
+  })));
+};
+
 module.exports = {
   sync,
+  getFromToday,
 };
