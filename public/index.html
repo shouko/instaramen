@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Hello</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/live/socket.io/socket.io.js"></script>
     <style>
         #messages-container {
             height: calc(100vh - 100px);
@@ -54,7 +54,7 @@
         ul.appendChild(el);
       }
 
-      const socketio = io();
+      const socketio = io({path: '/live/socket.io'});
       document.querySelector('form').addEventListener('submit', (e) => {
         e.preventDefault();
         const type = document.querySelector('#type');

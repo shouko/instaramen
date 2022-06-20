@@ -10,7 +10,9 @@ const scheduledEvents = require('./scheduled_events');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+  path: '/live/socket.io',
+});
 io.on('connection', (socket) => {
   socket.on('message', (msg) => {
     console.log('message', msg);
@@ -49,7 +51,8 @@ forwardedEventTypes.forEach((type) => {
 app.disable('x-powered-by');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static(`${__dirname}/public`));
+app.use('/live', express.static(`${__dirname}/public`));
+app.use('/', express.static(`${__dirname}/public`));
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
