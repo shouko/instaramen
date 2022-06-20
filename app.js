@@ -7,6 +7,7 @@ const transcoder = require('./transcoder');
 const channels = require('./channels');
 const programs = require('./programs');
 const scheduledEvents = require('./scheduled_events');
+const scheduler = require('./scheduler');
 
 const app = express();
 const server = http.createServer(app);
@@ -98,6 +99,7 @@ app.delete('/api/scheduled_events/:id', async (req, res) => {
 
 const listener = server.listen(config.port, () => {
   console.info(`Listening on port ${listener.address().port}!`);
+  scheduler.init();
 });
 
 process.on('exit', (code) => {

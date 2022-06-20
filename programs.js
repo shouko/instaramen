@@ -1,15 +1,16 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-plusplus */
 const fetch = require('node-fetch');
+const fs = require('fs');
 const { Op } = require('sequelize');
 const jaconv = require('jaconv');
 const { scheduleApiUrl } = require('./config');
 const { Program, sequelize } = require('./db');
 const { getTodayStartJST } = require('./utils');
-const keywords = require('./data/keywords.json');
 
 const sync = async () => {
   try {
+    const keywords = JSON.parse(fs.readFileSync('./data/keywords.json'));
     const reserved = await fetch(`${scheduleApiUrl}/api/reserves.json`).then((r) => r.json());
     if (!Array.isArray(reserved)) {
       throw new Error('Malformed reserve data from API');

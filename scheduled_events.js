@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const { ScheduledEvent } = require('./db');
 const { getTodayStartJST } = require('./utils');
 
@@ -37,8 +37,57 @@ const getFromToday = async (days) => {
   });
 };
 
+const getCurrentActive = async () => {
+  const nowTS = new Date().getTime();
+  return ScheduledEvent.findAll({
+    where: {
+      startsAt: {
+        // Starts in less than 5 minutes or already started
+        [Op.lte]: nowTS + 5 * 60 * 1000,
+        // Not ended yet
+        [Op.gte]: Sequelize.literal(`${nowTS} - durationInSeconds * 1000`),
+      },
+      endedAt: 0, // Not ended yet
+      active: true,
+    },
+    order: [
+      ['startsAt', 'ASC'],
+    ],
+    raw: true,
+  });
+};
+
+const setStarted = async ({ id }) => {
+  const event = await ScheduledEvent.findOne({
+    where: {
+      id,
+    },
+  });
+  if (!event) return false;
+  await event.update({
+    startedAt: new Date().getTime(),
+  });
+  return true;
+};
+
+const setEnded = async ({ id }) => {
+  const event = await ScheduledEvent.findOne({
+    where: {
+      id,
+    },
+  });
+  if (!event) return false;
+  await event.update({
+    endedAt: new Date().getTime(),
+  });
+  return true;
+};
+
 module.exports = {
   create,
   disable,
   getFromToday,
+  getCurrentActive,
+  setStarted,
+  setEnded,
 };
