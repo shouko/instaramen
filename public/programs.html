@@ -10,6 +10,9 @@
         margin: 2px;
         width: 200vw;
       }
+      .tl-top {
+        height: 20px;
+      }
       .block {
         position: absolute;
         top: 0;
@@ -20,6 +23,10 @@
         z-index: 100;
         background-color: rgb(239, 182, 59);
       }
+      .block-top {
+        min-height: 20px;
+        background-color: green;
+      }
       .keyword {
         background-color: blue;
         display: inline-block;
@@ -29,24 +36,55 @@
     </style>
 </head>
 <body>
-  <form id="form">
-    <input id="serviceId" /><span id="serviceIdDisplay"></span><br />
-    <input id="startsAt" /><span id="startsAtDisplay"></span><br />
-    <input id="endsAt" /><span id="endsAtDisplay"></span><br />
-    <input type="reset" />
-    <input type="submit" />
-  </form>
+  <div>
+    <div>
+      <form id="form">
+        <input id="serviceId" /><span id="serviceIdDisplay"></span><br />
+        <input id="startsAt" /><span id="startsAtDisplay"></span><br />
+        <input id="endsAt" /><span id="endsAtDisplay"></span><br />
+        <input type="reset" />
+        <input type="submit" />
+      </form>
+    </div>
+    </div>
+    <div>
+      <button onclick="fetch('/api/programs/sync', {method:'POST'})">sync</button>
+    </div>
+  </div>
   <div id="table">
   </div>
   <script>
     const $ = (e) => document.getElementById(e)
+    const calcBlockLeftOffset = (startsAt, minStartsAt) => `${100*(startsAt - minStartsAt)/(86400*1000)}vw`;
+    const calcBlockWidth = (durationInSeconds) => `${100*durationInSeconds/(86400)}vw`
+
     const programsGroupedByServiceId = new Map();
+
     $('form').addEventListener('submit', (e) => {
       e.preventDefault();
+      return fetch('/api/scheduled_events', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          startsAt: $('startsAt').value,
+          endsAt: $('endsAt').value,
+          serviceId: $('serviceId').value,
+        })
+      }).then((r) => r.json()).then((r) => {
+        console.log(r);
+        alert('done!')
+      }).catch((e) => {
+        console.error(e);
+        alert(e);
+      });
     });
+
     (async () => {
       const channels = await fetch('/api/channels').then(r => r.json());
       const programs = await fetch('/api/programs').then(r => r.json())
+      const scheduledEvents = await fetch('/api/scheduled_events').then(r => r.json());
       programs.sort((a, b) => (a.startsAt - b.startsAt) || (a.endsAt - b.endsAt)).forEach((row) => {
         const groupKey = row.serviceId;
         if (!programsGroupedByServiceId.has(groupKey)) programsGroupedByServiceId.set(groupKey, []);
@@ -54,14 +92,41 @@
         group.push(row);
       });
       const minStartsAt = programs[0].startsAt;
-      [...programsGroupedByServiceId].map(([serviceId, rows]) => {
+      [...programsGroupedByServiceId].flatMap(([serviceId, rows]) => {
+        const tlTop = document.createElement('div');
+        tlTop.classList.add('tl');
+        tlTop.classList.add('tl-top');
+        const events = scheduledEvents.filter(({ fullServiceId }) => fullServiceId == serviceId);
+        events.map(({id, startsAt, durationInSeconds}) => {
+          const blockTop = document.createElement('div');
+          blockTop.classList.add('block');
+          blockTop.classList.add('block-top');
+          blockTop.style.left = calcBlockLeftOffset(startsAt, minStartsAt);
+          blockTop.style.width = calcBlockWidth(durationInSeconds);
+          const del = document.createElement('button');
+          del.innerText = 'del';
+          del.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!confirm('delete?')) return false;
+            fetch(`/api/scheduled_events/${id}`, {
+              method: 'DELETE',
+            }).then((r) => {
+              alert('done!');
+            }).catch((e) => {
+              console.error(e);
+              alert(e);
+            });
+          });
+          blockTop.appendChild(del);
+          return blockTop;
+        }).forEach((e) => tlTop.appendChild(e));
         const tl = document.createElement('div');
         tl.classList.add('tl');
         rows.map((row) => {
           const block = document.createElement('div');
           block.classList.add('block');
-          block.style.left = `${100*(row.startsAt - minStartsAt)/(86400*1000)}vw`;
-          block.style.width = `${100*row.durationInSeconds/(86400)}vw`;
+          block.style.left = calcBlockLeftOffset(row.startsAt, minStartsAt);
+          block.style.width = calcBlockWidth(row.durationInSeconds);
           block.innerHTML = row.title;
           block.addEventListener('click', () => {
             const startsAt = Math.min(parseInt($('startsAt').value || Number.MAX_SAFE_INTEGER, 10), row.startsAt);
@@ -84,8 +149,8 @@
           }).forEach((e) => block.appendChild(e));
           return block;
         }).forEach((e) => tl.appendChild(e));
-        return tl;
-      }).forEach((e) => $('table').appendChild(e));
+        return [tlTop, tl];
+      }).map((e) => $('table').appendChild(e));
     })();
   </script>
 </body>

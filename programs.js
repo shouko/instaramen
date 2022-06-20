@@ -5,6 +5,7 @@ const { Op } = require('sequelize');
 const jaconv = require('jaconv');
 const { scheduleApiUrl } = require('./config');
 const { Program, sequelize } = require('./db');
+const { getTodayStartJST } = require('./utils');
 const keywords = require('./data/keywords.json');
 
 const sync = async () => {
@@ -76,21 +77,7 @@ const sync = async () => {
 };
 
 const getFromToday = async (days) => {
-  const now = new Date();
-  const timeZone = 'Asia/Tokyo';
-  const jstYYYY = now.toLocaleString('en-US', {
-    timeZone,
-    year: 'numeric',
-  });
-  const jstMM = now.toLocaleString('en-US', {
-    timeZone,
-    month: '2-digit',
-  });
-  const jstDD = now.toLocaleString('en-US', {
-    timeZone,
-    day: '2-digit',
-  });
-  const todayStartJst = new Date(`${jstYYYY}/${jstMM}/${jstDD} 00:00:00 +09:00`);
+  const todayStartJst = getTodayStartJST();
   return Program.findAll({
     where: {
       startsAt: {

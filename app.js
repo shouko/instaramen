@@ -6,6 +6,7 @@ const config = require('./config');
 const transcoder = require('./transcoder');
 const channels = require('./channels');
 const programs = require('./programs');
+const scheduledEvents = require('./scheduled_events');
 
 const app = express();
 const server = http.createServer(app);
@@ -60,6 +61,36 @@ app.get('/api/programs', (req, res) => {
 
 app.post('/api/programs/sync', async (req, res) => {
   res.json(await programs.sync());
+});
+
+app.get('/api/scheduled_events', (req, res) => {
+  scheduledEvents.getFromToday().then((rows) => res.json(rows));
+});
+
+app.post('/api/scheduled_events', async (req, res) => {
+  const { startsAt, endsAt, serviceId: fullServiceId } = req.body;
+  try {
+    await scheduledEvents.create({
+      startsAt,
+      endsAt,
+      fullServiceId,
+    });
+    res.json({});
+  } catch (e) {
+    console.error(e);
+    res.status(500).json(e);
+  }
+});
+
+app.delete('/api/scheduled_events/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await scheduledEvents.disable({ id });
+    res.json({});
+  } catch (e) {
+    console.error(e);
+    res.status(500).json(e);
+  }
 });
 
 const listener = server.listen(config.port, () => {
