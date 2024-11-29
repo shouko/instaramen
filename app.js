@@ -35,6 +35,11 @@ io.on('connection', (socket) => {
       default:
     }
   });
+  socket.on('reloadch', () => {
+    channels.load().then(() => {
+      socket.emit('service', channels.list());
+    });
+  });
   socket.emit('message', `Transcoder status: ${transcoder.getStatus()}`);
   socket.emit('service', channels.list());
 });

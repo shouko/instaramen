@@ -27,6 +27,7 @@
       </select>
       <input id="btn-start" type="button" value="Start" />
       <input id="btn-stop" type="button" value="Stop" />
+      <input id="btn-reloadch" type="button" value="Reload Channels" />
     </form>
   <script>
       var collapsedMsgCount = 0;
@@ -84,6 +85,9 @@
       });
       document.querySelector('#btn-stop').addEventListener('click', () => {
         socketio.emit('transcoder', 'stop');
+      });
+      document.querySelector('#btn-reloadch').addEventListener('click', () => {
+        socketio.emit('transcoder', 'reloadch');
       });
     </script>
 </body>
